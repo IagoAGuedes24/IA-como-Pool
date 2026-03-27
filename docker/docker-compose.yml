@@ -13,11 +13,13 @@ services:
       - "15672:15672"
 
   generator:
-    build: ./services/generator
+    build: ../services/generator
     depends_on:
       - rabbitmq
 
   consumer:
-    build: ./services/consumer
+    build: ../services/consumer
     depends_on:
       - redis 
+    ports:
+      - "8000:8000"
