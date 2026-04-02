@@ -2,28 +2,49 @@ version: '3.8'
 
 services:
   redis:
-    image: redis
+    image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
-    image: rabbitmq:management
+    image: rabbitmq:3-management
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   generator:
     build: ../services/generator
     depends_on:
       - rabbitmq
-    env_file:      
-      - .env    
-    environment:        
-      - GROQ_API_KEY
+    environment:
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_QUEUE: fila_ia_desafios
+      PUBLISH_INTERVAL_SECONDS: 5
+    restart: unless-stopped
 
   consumer:
     build: ../services/consumer
     depends_on:
-      - redis 
+      - redis
+      - rabbitmq
     ports:
       - "8000:8000"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_QUEUE: fila_ia_desafios
+      REDIS_POOL_KEY: pool_desafios
+      REDIS_MAX_ITEMS: 20
+    restart: unless-stopped
