@@ -30,10 +30,10 @@ def criar_conexao_rabbitmq() -> pika.BlockingConnection:
                     blocked_connection_timeout=300,
                 )
             )
-            print("Conectado ao RabbitMQ.")
+            logging.info("Conectado ao RabbitMQ.")
             return connection
         except pika.exceptions.AMQPConnectionError as exc:
-            print(f"RabbitMQ indisponível, tentando novamente em 5s: {exc}")
+            logging.warning(f"RabbitMQ indisponível, tentando novamente em 5s: {exc}")
             time.sleep(5)
 
 
@@ -45,7 +45,7 @@ def criar_canal(connection: pika.BlockingConnection) -> pika.adapters.blocking_c
 
 def gerar_desafio_ia() -> dict | None:
     if not GROQ_API_KEY:
-        print("GROQ_API_KEY não configurada. Gerador ficará aguardando nova tentativa.")
+        logging.warning("GROQ_API_KEY não configurada. Aguardando...")
         time.sleep(10)
         return None
 
@@ -78,7 +78,7 @@ def gerar_desafio_ia() -> dict | None:
         conteudo = response.choices[0].message.content
         return json.loads(conteudo)
     except Exception as exc:
-        print(f"Erro ao comunicar com a IA: {exc}")
+        logging.error(f"Erro ao comunicar com a IA: {exc}")
         return None
 
 
@@ -91,7 +91,7 @@ def publicar_desafio(channel: pika.adapters.blocking_connection.BlockingChannel,
     )
 
 
-print("Iniciando Generator com Llama 3 (Groq)...")
+logging.info("Iniciando Generator com Llama 3 (Groq)...")
 
 while True:
     connection = criar_conexao_rabbitmq()
@@ -102,10 +102,10 @@ while True:
             novo_desafio = gerar_desafio_ia()
             if novo_desafio:
                 publicar_desafio(channel, novo_desafio)
-                print(f"Desafio gerado e enviado para a fila: ID {novo_desafio.get('id')}")
+                logging.info(f"Desafio gerado e enviado para a fila: ID {novo_desafio.get('id')}")
             time.sleep(PUBLISH_INTERVAL_SECONDS)
     except (pika.exceptions.AMQPConnectionError, pika.exceptions.StreamLostError) as exc:
-        print(f"Conexão com RabbitMQ perdida. Reconectando: {exc}")
+        logging.error(f"Conexão com RabbitMQ perdida. Reconectando: {exc}")
         time.sleep(5)
     finally:
         try:
