@@ -31,6 +31,7 @@ BANCO_ESTATICO_FALLBACK = [
 
 
 def aguardar_redis() -> None:
+    """Verifica e aguarda a disponibilidade do banco Redis."""
     while True:
         try:
             r.ping()
@@ -42,6 +43,7 @@ def aguardar_redis() -> None:
 
 
 def criar_conexao_rabbitmq() -> pika.BlockingConnection:
+    """Cria e retorna uma conexão bloqueante com o RabbitMQ."""
     while True:
         try:
             connection = pika.BlockingConnection(
@@ -95,7 +97,8 @@ def startup_event() -> None:
 
 
 @app.get("/health")
-def healthcheck():
+def healthcheck() -> dict:
+    """Endpoint de verificação de integridade (Healthcheck) da aplicação."""
     redis_ok = True
     try:
         r.ping()
@@ -111,7 +114,8 @@ def healthcheck():
 
 
 @app.get("/desafio")
-def obter_desafio():
+def obter_desafio() -> dict:
+    """Retorna um desafio do pool do Redis ou do fallback estático."""
     try:
         desafio_json = r.rpop(REDIS_POOL_KEY)
         if desafio_json:
