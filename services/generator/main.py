@@ -20,6 +20,7 @@ client = OpenAI(
 
 
 def criar_conexao_rabbitmq() -> pika.BlockingConnection:
+    logging.info("Tentando conectar ao RabbitMQ...")
     """Tenta conectar ao RabbitMQ indefinidamente até o broker ficar disponível."""
     while True:
         try:
@@ -38,18 +39,22 @@ def criar_conexao_rabbitmq() -> pika.BlockingConnection:
 
 
 def criar_canal(connection: pika.BlockingConnection) -> pika.adapters.blocking_connection.BlockingChannel:
+    """cria e declara o canal no RabbitMQ."""
+    logging.info(f"Criando canal e declarando fila '{RABBITMQ_QUEUE}'")
     channel = connection.channel()
     channel.queue_declare(queue=RABBITMQ_QUEUE, durable=True)
     return channel
 
 
 def gerar_desafio_ia() -> dict | None:
+    """gera um desafio utilizando a IA."""
     if not GROQ_API_KEY:
         logging.warning("GROQ_API_KEY não configurada. Aguardando...")
         time.sleep(10)
         return None
 
     try:
+        logging.info("Gerando novo desafio com IA...")
         response = client.chat.completions.create(
             model=GROQ_MODEL,
             messages=[
@@ -83,12 +88,15 @@ def gerar_desafio_ia() -> dict | None:
 
 
 def publicar_desafio(channel: pika.adapters.blocking_connection.BlockingChannel, desafio: dict) -> None:
+    """publica um desafio na fila do RabbitMQ."""
+    logging.debug(f"Publicando desafio ID {desafio.get('id')} na fila...")
     channel.basic_publish(
         exchange="",
         routing_key=RABBITMQ_QUEUE,
         body=json.dumps(desafio),
         properties=pika.BasicProperties(delivery_mode=2),
     )
+    logging.info(f"Desafio publicado na fila (ID: {desafio.get('id')})")
 
 
 logging.info("Iniciando Generator com Llama 3 (Groq)...")
@@ -108,7 +116,9 @@ while True:
         logging.error(f"Conexão com RabbitMQ perdida. Reconectando: {exc}")
         time.sleep(5)
     finally:
+        logging.info("Encerrando conexão com RabbitMQ...")
         try:
             connection.close()
         except Exception:
+            logging.warning("Erro ao fechar conexão (ignorando).")
             pass
