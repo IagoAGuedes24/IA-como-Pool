@@ -1,9 +1,11 @@
 import json
 import os
 import time
-
+import logging
 import pika
 from openai import OpenAI
+
+logging.basicConfig(level=logging.INFO)
 
 RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "rabbitmq")
 RABBITMQ_QUEUE = os.environ.get("RABBITMQ_QUEUE", "fila_ia_desafios")
