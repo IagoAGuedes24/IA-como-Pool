@@ -65,4 +65,9 @@ A POC simula um sistema de retenção de usuários em jogos mobile (onde o jogad
 <pre> docker-compose stop generator </pre>
 * Volte ao navegador e continue atualizando a página
 
+***Teste de desempenho:***
+Basta executar o programa teste_carga.py tanto em pool como em fallback
+
 ***Resultado Esperado:*** O sistema continuará servindo os itens restantes no cache. Assim que o Pool do Redis esvaziar, o sistema não apresentará erro. Ele fará a transição automática para as respostas estáticas de contingência, indicando a origem "Fallback_Estatico com Pool vazio
+
+### Link do VídeoCast
