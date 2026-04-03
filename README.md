@@ -71,3 +71,4 @@ Basta executar o programa teste_carga.py tanto em pool como em fallback
 ***Resultado Esperado:*** O sistema continuará servindo os itens restantes no cache. Assim que o Pool do Redis esvaziar, o sistema não apresentará erro. Ele fará a transição automática para as respostas estáticas de contingência, indicando a origem "Fallback_Estatico com Pool vazio
 
 ### Link do VídeoCast
+https://drive.google.com/file/d/1fV6CpAP2yMEQH4j44qJlGg47BDHVfmo4/view?usp=sharing
