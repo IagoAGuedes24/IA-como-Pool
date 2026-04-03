@@ -38,7 +38,7 @@ A POC simula um sistema de retenção de usuários em jogos mobile (onde o jogad
 
 1. **Clone este repositório:**
    <pre>
-   git clone [https://github.com/IagoAGuedes24/IA-como-Pool.git](https://github.com/IagoAGuedes24/IA-como-Pool.git)
+   git clone https://github.com/IagoAGuedes24/IA-como-Pool
    cd IA-como-Pool </pre>
 
 2. **Configure as Variáveis de Ambiente:**
@@ -58,6 +58,8 @@ A POC simula um sistema de retenção de usuários em jogos mobile (onde o jogad
 * Acesse o consumo do Pool: http://localhost:8000/desafio
 * Atualize a página múltiplas vezes
 ***Resultado esperado:*** Respostas instantâneas com a origem indicando Pool_Redis Gerado via RabbitMQ. O usuário não sofre com o tempo de processamento da IA
+***Observação de Pool:*** Para visualizar a geração das perguntas basta dar o comando:
+  <pre> docker-compose logs -f generator </pre>
 
 * No terminal, derrube propositalmente o serviço gerador
 <pre> docker-compose stop generator </pre>
